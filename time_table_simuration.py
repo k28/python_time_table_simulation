@@ -31,7 +31,7 @@ class SectionInfo:
             rate = 1.0 - rate
         return rate
 
-    def write_potision(self, time, interval):
+    def write_position(self, time, interval):
         position = self.propotion(time)
         total_len = interval + 1
         write_position = total_len * position
@@ -61,23 +61,41 @@ def writeTrainPosition(stations, sections, time):
     sys.stdout.write("\n")
 
     total_stations = len(stations)
+    rail_length = total_stations + total_stations * station_interval
+    forward_rail  = ["-"] * rail_length
+    backward_rail = ["-"] * rail_length
 
     for section in sections:
-        print(section)
+        #print(section)
         section_position = section.index
-        for i in range(0, total_stations):
-            if section.index != i:
-                for j in range(0,station_interval + 1):
-                    sys.stdout.write(" ")
-            else:
-                write_position = section.write_potision(time, station_interval)
-                #print(str(write_position))
-                for j in range(0,station_interval + 1):
-                    if j != write_position:
-                        sys.stdout.write(" ")
-                    else:
-                        sys.stdout.write(section.train_icon())
-        sys.stdout.write("\n")
+        # test --
+        # print(str(station_interval) + ":" + str(section_position) + ":" + str(section.write_position(time, station_interval)))
+        train_position = station_interval * section_position + section_position + section.write_position(time, station_interval)
+        if section.direction == DIRECTION_FORWARD:
+            forward_rail[train_position] = section.train_icon()
+        else:
+            backward_rail[train_position] = section.train_icon()
+        # test --
+        # for i in range(0, total_stations):
+        #     if section.index != i:
+        #         for j in range(0,station_interval + 1):
+        #             sys.stdout.write(" ")
+        #     else:
+        #         write_position = section.write_position(time, station_interval)
+        #         #print(str(write_position))
+        #         for j in range(0,station_interval + 1):
+        #             if j != write_position:
+        #                 sys.stdout.write(" ")
+        #             else:
+        #                 sys.stdout.write(section.train_icon())
+        # sys.stdout.write("\n")
+        
+    for i in range(len(forward_rail)):
+        sys.stdout.write(forward_rail[i])
+    sys.stdout.write("\n")
+    for i in range(len(backward_rail)):
+        sys.stdout.write(backward_rail[i])
+    sys.stdout.write("\n")
 
 stations = []
 time_tables = []
@@ -138,7 +156,7 @@ def simulation_mode():
             if info.contain_time(check_date):
                 points.append(info)
         writeTrainPosition(stations, points, check_date);
-        check_date += datetime.timedelta(seconds=10)
+        check_date += datetime.timedelta(seconds=30)
         time.sleep(1);
 
 def real_time_mode():
