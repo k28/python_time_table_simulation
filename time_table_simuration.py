@@ -1,4 +1,14 @@
+"""
+Timetable simulation.
 
+-- CSV FORMAT --
+A 10:00 10:10
+B 10:05 10:15
+C 10:07 10:17
+
+column1    : Station name
+column2... : time table
+"""
 import sys
 import csv
 import datetime
@@ -6,6 +16,10 @@ import time
 
 DIRECTION_FORWARD  = 1
 DIRECTION_BACKWORD = 2
+
+stations    = []
+time_tables = []
+sections    = []
 
 class SectionInfo:
     """ Section info"""
@@ -46,8 +60,7 @@ class SectionInfo:
     def __str__(self):
         return str(self.index) + " " + self.before_station + "[" + self.before_time.strftime('%Y/%m/%d %H:%M:%S') + "]" + ":" + self.next_station + "[" + self.next_time.strftime('%Y/%m/%d %H:%M:%S') + "]"
 
-
-
+""" Write Station and Train position """
 def write_train_position(stations, sections, time):
     station_interval = 4
     total_stations = len(stations)
@@ -56,14 +69,13 @@ def write_train_position(stations, sections, time):
     forward_rail  = [" "] * rail_length
     backward_rail = [" "] * rail_length
 
-    # Insert station position
+    # Insert station position to the station_rail
     for i in range(0, len(stations)):
         station_pos = i * station_interval + i
         station_rail[station_pos] = stations[i]
 
-    # Insert train position
+    # Insert train position to the forward/backward rail
     for section in sections:
-        #print(section)
         section_position = section.index
         train_position = station_interval * section_position + section_position + section.write_position(time, station_interval)
         if section.direction == DIRECTION_FORWARD:
@@ -71,7 +83,7 @@ def write_train_position(stations, sections, time):
         else:
             backward_rail[train_position] = section.train_icon()
 
-    # Write rail and train position
+    # Write station and train
     for i in range(len(station_rail)):
         sys.stdout.write(station_rail[i])
     sys.stdout.write("\n")
@@ -81,10 +93,6 @@ def write_train_position(stations, sections, time):
     for i in range(len(backward_rail)):
         sys.stdout.write(backward_rail[i])
     sys.stdout.write("\n")
-
-stations = []
-time_tables = []
-sections = []
 
 def load_forward_direction():
     # read data form csv file
@@ -102,7 +110,6 @@ def load_forward_direction():
             before_time    = time_tables[index][j]
             next_station   = time_tables[index + 1][0]
             next_time      = time_tables[index + 1][j]
-           #print(before_station + ":" + before_time + ":" + next_station + ";" + next_time)
             section_info = SectionInfo(index, before_station, before_time, next_station, next_time, DIRECTION_FORWARD)
             sections.append(section_info)
 
@@ -129,21 +136,31 @@ def load_backword_direction():
             section_info = SectionInfo(total_stations - (index+1), before_station, before_time, next_station, next_time, DIRECTION_BACKWORD)
             sections.append(section_info)
 
-def simulation_mode():
-    check_date = datetime.datetime.strptime('08:15:00', '%H:%M:%S')
+"""
+Simulate train position
+"""
+def simulation_mode(start_time):
+    check_date = datetime.datetime.strptime(start_time, '%H:%M:%S')
     end_time   = datetime.datetime.strptime('23:59:00', '%H:%M:%S')
 
     while(check_date < end_time):
         time_str = check_date.strftime('%H:%M:%S')
-        print(time_str)
         points = []
         for info in sections:
             if info.contain_time(check_date):
                 points.append(info)
+        print(time_str)
         write_train_position(stations, points, check_date);
+        sys.stdout.flush()
         check_date += datetime.timedelta(seconds=30)
         time.sleep(1);
+        # clear console 4 line, time(one line) + station and rail (3 line)
+        sys.stdout.write("\033[4F")
 
+"""
+Show Current time position
+Update 10 second.
+"""
 def real_time_mode():
     while(True):
         current_time = datetime.datetime.now()
@@ -156,8 +173,8 @@ def real_time_mode():
                 points.append(info)
         write_train_position(stations, points, check_date);
         time.sleep(10);
-        print(chr(27) + "[2J")
-
+        # clear console 4 line, time(one line) + station and rail (3 line)
+        sys.stdout.write("\033[4F")
 
 # __main__
 
@@ -165,5 +182,5 @@ load_forward_direction()
 load_backword_direction()
 
 #real_time_mode()
-simulation_mode()
+simulation_mode('10:08:00')
 
