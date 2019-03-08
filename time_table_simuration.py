@@ -136,6 +136,10 @@ def load_backword_direction():
             section_info = SectionInfo(total_stations - (index+1), before_station, before_time, next_station, next_time, DIRECTION_BACKWORD)
             sections.append(section_info)
 
+def load_and_show_station_name():
+    with open('./timetable/statiosn_name.txt') as f:
+        sys.stdout.write(f.read())
+
 """
 Simulate train position
 """
@@ -180,6 +184,7 @@ def real_time_mode():
 
 load_forward_direction()
 load_backword_direction()
+load_and_show_station_name()
 
 #real_time_mode()
 simulation_mode('10:08:00')

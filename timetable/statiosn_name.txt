@@ -1,0 +1,14 @@
+A:Matsumoto
+B:Nishi-matsumoto
+C:Nagisa
+D:Shinano-arai
+E:Oniwa
+F:Shimonii
+G:Kitanii, Matsumotodaigakumae
+H:Niimura
+I:Samizo
+J:Moriguchi
+K:Shimojima
+L:Hata
+M:Endo
+N:Shin-shimashima
