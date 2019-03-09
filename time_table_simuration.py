@@ -13,6 +13,7 @@ import sys
 import csv
 import datetime
 import time
+import argparse
 
 DIRECTION_FORWARD  = 1
 DIRECTION_BACKWORD = 2
@@ -176,16 +177,25 @@ def real_time_mode():
             if info.contain_time(check_date):
                 points.append(info)
         write_train_position(stations, points, check_date);
-        time.sleep(10);
+        time.sleep(1);
         # clear console 4 line, time(one line) + station and rail (3 line)
         sys.stdout.write("\033[4F")
 
 # __main__
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-s", "--simulation", help="Simulation mode", action="store_true")
+parser.add_argument("-r", "--realtime", help="Simulation mode", action="store_true")
+args = parser.parse_args()
+
 load_forward_direction()
 load_backword_direction()
 load_and_show_station_name()
 
-#real_time_mode()
-simulation_mode('10:08:00')
+if args.simulation:
+    simulation_mode('10:08:00')
+elif args.realtime:
+    real_time_mode()
+else:
+    real_time_mode()
 
