@@ -193,7 +193,7 @@ load_backword_direction()
 load_and_show_station_name()
 
 if args.simulation:
-    simulation_mode('10:08:00')
+    simulation_mode('08:30:00')
 elif args.realtime:
     real_time_mode()
 else:
